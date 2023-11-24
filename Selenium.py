@@ -1,5 +1,5 @@
 def get_page_sel(url):
-
+    import logging
     import time
     from selenium import webdriver
     from selenium.webdriver.chrome.service import Service as ChromeService
@@ -18,6 +18,7 @@ def get_page_sel(url):
   #      print(f"Error: {e}")
 
     # Navigate to the webpage
+    logging.info("Getting URL in chrome")
     driver.get(url)
     time.sleep(10) # should probably use implicitly_wait but can't find a way to make it work.
 
@@ -30,7 +31,8 @@ def get_page_sel(url):
     # Close the browser
     driver.quit()
 
-    with open('C:/Users/Charles/OneDrive/Documents/GitHub/TeleComp/output/html_after_clientside_js.txt', 'w') as f: # save a txt file with the code to make sure JS was executed as wanted
+    logging.info("Writting text file")
+    with open('C:/Users/Charles/OneDrive/Documents/GitHub/TeleComp/output/html_after_clientside_js.txt', 'w', encoding='utf-8') as f: # save a txt file with the code to make sure JS was executed as wanted
         f.write(page_source)
 
     return page_source

@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 import re
+import logging
 
 import Selenium #used when the html page we try to load is generated client-side
 
@@ -20,9 +21,11 @@ def main(company, name_tag, price_tag, speed_tag):
     #Bell uses client side JS to produce its webpage
     if company=="Bell":
         response = Selenium.get_page_sel(url(company))
+        logging.info("Getting soup")
         soup = BeautifulSoup(response, 'html.parser') #don't need the .text here since it is already in that format
     else:
         response = requests.get(url(company))
+        logging.info("Getting soup")
         soup = BeautifulSoup(response.text, 'html.parser') #html page
 
     names = soup.find_all(name_tag[0], attrs=name_tag[1])  # find Name of internet plans offered
@@ -62,7 +65,7 @@ vdtr_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
 #print(main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag))
 
 ######## bell html calls for main function #########
-bell_name_tag = ("'h2'", {'class': 'small-title margin-l-xs-15'})
+bell_name_tag = ("h2", {'class': 'small-title'})
 bell_price_tag = ("div", {'class': 'big-price priceText'}) #'id': 'big-price', 'class': 'big-price priceText'
 bell_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
 
