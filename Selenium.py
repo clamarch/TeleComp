@@ -1,5 +1,6 @@
-def selenium(url):
+def get_page_sel(url):
 
+    import time
     from selenium import webdriver
     from selenium.webdriver.chrome.service import Service as ChromeService
     from selenium.webdriver.common.by import By
@@ -7,17 +8,21 @@ def selenium(url):
 
     # Set up the Chrome driver
     chrome_options = Options()
-    chrome_options.add_argument('--headless')  # Run Chrome in headless mode (without GUI)
+    #chrome_options.add_argument('--headless')  # Run Chrome in headless mode (without GUI)
 
     driver_path = "C:/Users/Charles/OneDrive/Documents/chromedriver-win64/chromedriver.exe"  # Replace with the path to your chromedriver executable
     chrome_service = ChromeService(executable_path=driver_path)
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
+ #   except Exception as e:
+  #      print(f"Error: {e}")
+
     # Navigate to the webpage
     driver.get(url)
+    time.sleep(10) # should probably use implicitly_wait but can't find a way to make it work.
 
     # Wait for dynamic content to load (you may need to adjust the wait time)
-    driver.implicitly_wait(10)
+ #   driver.implicitly_wait(20) #does not work for now, using sleep instead
 
     # Extract the HTML content after JavaScript execution
     page_source = driver.page_source
@@ -25,5 +30,7 @@ def selenium(url):
     # Close the browser
     driver.quit()
 
-    return page_source
+    with open('C:/Users/Charles/OneDrive/Documents/GitHub/TeleComp/output/html_after_clientside_js.txt', 'w') as f: # save a txt file with the code to make sure JS was executed as wanted
+        f.write(page_source)
 
+    return page_source

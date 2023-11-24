@@ -4,7 +4,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import re
 
-import Selenium.py #used when the html page we try to load is generated client-side
+import Selenium #used when the html page we try to load is generated client-side
 
 #dictionnary containing appropriate URLs to use depending on company
 def url(company):
@@ -17,20 +17,18 @@ def url(company):
 #function used to pull information from website
 def main(company, name_tag, price_tag, speed_tag):
     
+    #Bell uses client side JS to produce its webpage
     if company=="Bell":
-        response = Selenium.selenium(url(company))
+        response = Selenium.get_page_sel(url(company))
+        soup = BeautifulSoup(response, 'html.parser') #don't need the .text here since it is already in that format
     else:
         response = requests.get(url(company))
+        soup = BeautifulSoup(response.text, 'html.parser') #html page
 
-    soup = BeautifulSoup(response.text, 'html.parser') #html page
-    print(soup)
-
-    names = soup.find_all('h2', attrs={'class': 'small-title margin-l-xs-15'})  # find Name of internet plans offered
+    names = soup.find_all(name_tag[0], attrs=name_tag[1])  # find Name of internet plans offered
     prices = soup.find_all(price_tag[0], attrs=price_tag[1])  # find prices of internet plans offered
     speeds = soup.find_all(speed_tag[0], attrs=speed_tag[1])
 
-    print(name_tag[0]) 
-    print(name_tag[1])
     print(names)
 
     vnames= [name.get_text().strip() for name in names]
