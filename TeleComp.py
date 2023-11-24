@@ -48,4 +48,4 @@ vdtr_name_tag = ("h1", {'class': 'h3 mt-0 mb-1'})
 vdtr_price_tag = ("span", {'class': 'bf-price__dollar'})
 vdtr_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
 
-print(main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag)) 
+print(main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag))
