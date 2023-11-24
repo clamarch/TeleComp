@@ -1,7 +1,10 @@
+import json
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 import re
+
+import Selenium.py #used when the html page we try to load is generated client-side
 
 #dictionnary containing appropriate URLs to use depending on company
 def url(company):
@@ -14,13 +17,22 @@ def url(company):
 #function used to pull information from website
 def main(company, name_tag, price_tag, speed_tag):
     
-    response = requests.get(url(company))
+    if company=="Bell":
+        response = Selenium.selenium(url(company))
+    else:
+        response = requests.get(url(company))
+
     soup = BeautifulSoup(response.text, 'html.parser') #html page
-    
-    names = soup.find_all(name_tag[0], attrs=name_tag[1])  # find Name of internet plans offered
+    print(soup)
+
+    names = soup.find_all('h2', attrs={'class': 'small-title margin-l-xs-15'})  # find Name of internet plans offered
     prices = soup.find_all(price_tag[0], attrs=price_tag[1])  # find prices of internet plans offered
-    speeds = soup.find_all(speed_tag[0], attrs=speed_tag[1]) 
-    
+    speeds = soup.find_all(speed_tag[0], attrs=speed_tag[1])
+
+    print(name_tag[0]) 
+    print(name_tag[1])
+    print(names)
+
     vnames= [name.get_text().strip() for name in names]
     vprices= [price.get_text().strip() for price in prices]
     vspeeds= [speed.get_text().strip() for speed in speeds[::2]] #need to skip second element becaus it is not the speed info
@@ -49,11 +61,11 @@ vdtr_name_tag = ("h1", {'class': 'h3 mt-0 mb-1'})
 vdtr_price_tag = ("span", {'class': 'bf-price__dollar'})
 vdtr_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
 
-print(main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag))
+#print(main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag))
 
 ######## bell html calls for main function #########
-bell_name_tag = ("h1", {'class': 'h3 mt-0 mb-1'})
-bell_price_tag = ("span", {'class': 'bf-price__dollar'})
+bell_name_tag = ("'h2'", {'class': 'small-title margin-l-xs-15'})
+bell_price_tag = ("div", {'class': 'big-price priceText'}) #'id': 'big-price', 'class': 'big-price priceText'
 bell_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
 
 print(main("Bell", bell_name_tag, bell_price_tag, bell_speed_tag))
