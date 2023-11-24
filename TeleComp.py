@@ -6,7 +6,8 @@ import re
 #dictionnary containing appropriate URLs to use depending on company
 def url(company):
     cases = {
-        "Videotron": 'https://videotron.com/internet/forfaits-internet-illimite'
+        "Videotron": 'https://videotron.com/internet/forfaits-internet-illimite',
+        "Bell": 'https://www.bell.ca/Bell_Internet/Internet_access'
     }
     return cases.get(company)
 
@@ -43,9 +44,16 @@ def main(company, name_tag, price_tag, speed_tag):
 
     return df
 
-#videotron html calls for main function
+######## videotron html calls for main function #########
 vdtr_name_tag = ("h1", {'class': 'h3 mt-0 mb-1'})
 vdtr_price_tag = ("span", {'class': 'bf-price__dollar'})
 vdtr_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
 
 print(main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag))
+
+######## bell html calls for main function #########
+bell_name_tag = ("h1", {'class': 'h3 mt-0 mb-1'})
+bell_price_tag = ("span", {'class': 'bf-price__dollar'})
+bell_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
+
+print(main("Bell", bell_name_tag, bell_price_tag, bell_speed_tag))
