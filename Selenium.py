@@ -20,7 +20,7 @@ def get_page_sel(url):
     # Navigate to the webpage
     logging.info("Getting URL in chrome")
     driver.get(url)
-    time.sleep(10) # should probably use implicitly_wait but can't find a way to make it work.
+    time.sleep(5) # should probably use implicitly_wait but can't find a way to make it work.
 
     # Wait for dynamic content to load (you may need to adjust the wait time)
  #   driver.implicitly_wait(20) #does not work for now, using sleep instead
