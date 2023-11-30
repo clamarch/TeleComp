@@ -14,7 +14,8 @@ def url(company):
     cases = {
         "Videotron": 'https://videotron.com/internet/forfaits-internet-illimite',
         "Bell": 'https://www.bell.ca/Bell_Internet/Internet_access',
-        "Distributel": 'https://www.distributel.ca/shop/internet-quebec'
+        "Distributel": 'https://www.distributel.ca/shop/internet-quebec',
+        "Telus": 'https://www.telus.com/en/internet/forfaits?linkname=Internet_Plans&linktype=ge-meganav'
     }
     return cases.get(company)
 
@@ -27,7 +28,7 @@ def extract_num(vector):
 def main(company, name_tag, price_tag, speed_tag):
     
     #Bell uses client side JS to produce its webpage
-    if company==("Bell", "Distributel"):
+    if company in ("Bell", "Distributel"):
         response = Selenium.get_page_sel(url(company))
         logging.info("Getting soup")
         soup = BeautifulSoup(response, 'html.parser') #don't need the .text here since it is already in that format
@@ -40,15 +41,32 @@ def main(company, name_tag, price_tag, speed_tag):
     prices = soup.find_all(price_tag[0], attrs=price_tag[1])  # find prices of internet plans offered
     speeds = soup.find_all(speed_tag[0], attrs=speed_tag[1])
 
-    vnames= [name.get_text().strip() for name in names]
+    vnames = [name.get_text().strip() for name in names]
+
+    #Telus' plan names have an exponent number (used as a footnote) that gets stored in the name of the plan.
+    #Remove that number from the name
+    if company == "Telus":
+        vnames = [name[:-1] for name in vnames]
+
     vprices= [price.get_text().strip() for price in prices]
-    vspeeds= [speed.get_text().strip() for speed in speeds[::2]] #need to skip second element becaus it is not the speed info
     
+    #speed array depends on company
+    if company == "Bell":
+        vspeeds= [speed.get_text().strip() for speed in speeds[::4]]
+    elif company == "Distributel":
+        vspeeds= [speed.get_text().strip()for speed in speeds]
+    elif company == "Videotron":
+        vspeeds= [speed.get_text().strip() for speed in speeds[::2]]
+    elif company == "Telus":
+        vspeeds= [speed.get_text().strip() for speed in speeds[::3]]
+
+    print(vnames)
+    print(vprices)
     print(vspeeds)
 
-    #/*/need to do an additional pass through for Bell
-    if company == "Bell":
-        vspeeds= [speed for speed in vspeeds[::2]]
+    print(len(vnames))
+    print(len(vprices))
+    print(len(vspeeds))
 
     #use regular expressions to extract numerical values from a list of strings
     extract_num(vspeeds)
@@ -81,21 +99,26 @@ vdtr_name_tag = ("h1", {'class': 'h3 mt-0 mb-1'})
 vdtr_price_tag = ("span", {'class': 'bf-price__dollar'})
 vdtr_speed_tag = ("li", {'class': 'd-flex flex-row mb-2'})
 
-#main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag)
-
 ######## bell html calls for main function #########
 bell_name_tag = ("h2", {'class': 'small-title margin-l-xs-15'})
 bell_price_tag = ("div", {'class': 'big-price priceText'}) #/*/returns prices in this format : '$60.00/mo. per month'
 bell_speed_tag = ("div", {'class': 'subtitle-2-reg margin-b-5'}) #format is: '3 GbpsGiga bits per second\xa0Footnote2A wired connection, or multiple wired/wireless connections are required to obtain speeds of up to 3 Gbps'
-
-#main("Bell", bell_name_tag, bell_price_tag, bell_speed_tag)
 
 ######## distributel html calls for main function #########
 dist_name_tag = ("h4", {'class': 'tiletitle'})
 dist_price_tag = ("h3", {'class': 'tileprice dablu'}) 
 dist_speed_tag = ("h2", {'class': 'tilespeed'})
 
+######## telus html calls for main function #########
+telus_name_tag = ("div", {'class': 'css-1rynq56', 'style': 'color:rgba(65,69,71,1.00);text-align:Auto;text-transform:none;font-size:20px;line-height:28px;font-family:HelveticaNow500normal;text-decoration-line:none'}) 
+telus_price_tag = ("div", {'class': 'css-1rynq56', 'style': 'color:rgba(65,69,71,1.00);text-transform:none;font-size:40px;line-height:40px;letter-spacing:-1.56px;font-family:HelveticaNow300normal;text-decoration-line:none'}) 
+telus_speed_tag = ("div", {'class': 'css-1rynq56', 'style': 'color:rgba(44,46,48,1.00);text-transform:none;font-size:16px;line-height:24px;font-family:HelveticaNow500normal;text-decoration-line:none'}) 
+
+
+main("Videotron", vdtr_name_tag, vdtr_price_tag, vdtr_speed_tag)
+main("Bell", bell_name_tag, bell_price_tag, bell_speed_tag)
 main("Distributel", dist_name_tag, dist_price_tag, dist_speed_tag)
+main("Telus", telus_name_tag, telus_price_tag, telus_speed_tag)
 
 all_companies = pd.concat(all_companies_dict.values(), ignore_index=True)  # merge all DataFrames
 all_companies = all_companies.sort_values(by='Speed_Per_Dollar', ascending=False)
